@@ -22,6 +22,8 @@ class LocationViewController: UIViewController, MKMapViewDelegate {
         setupLocationManager()
         getDeviceLocation()
         centerViewOnUserLocation()
+        print(currentLocation?.coordinate.latitude)
+        print(currentLocation?.coordinate.longitude)
     }
     
     func getDeviceLocation() {
@@ -39,7 +41,6 @@ class LocationViewController: UIViewController, MKMapViewDelegate {
             return
         }
         locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
-        locationManager.delegate = self
         if locationManager.authorizationStatus == .notDetermined {
             locationManager.requestWhenInUseAuthorization()
         } else {
@@ -58,6 +59,7 @@ class LocationViewController: UIViewController, MKMapViewDelegate {
             mapView.setRegion(region, animated: true)
         }
     }
+    
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Swift.Error) {
         print("error getting user location, error: \(error.localizedDescription)")
@@ -96,4 +98,5 @@ extension LocationViewController: CLLocationManagerDelegate {
     }
 
 }
+
 
