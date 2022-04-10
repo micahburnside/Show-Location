@@ -7,6 +7,7 @@
 
 import UIKit
 import MapKit
+import CoreLocation
 
 class LocationViewController: UIViewController, MKMapViewDelegate {
 
@@ -22,10 +23,11 @@ class LocationViewController: UIViewController, MKMapViewDelegate {
         setupLocationManager()
         getDeviceLocation()
         centerViewOnUserLocation()
+    }
+    override func viewDidAppear(_ animated: Bool) {
         print(currentLocation?.coordinate.latitude)
         print(currentLocation?.coordinate.longitude)
     }
-    
     func getDeviceLocation() {
         mapView.delegate = self
         mapView.showsUserLocation = true
