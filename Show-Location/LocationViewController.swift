@@ -87,8 +87,10 @@ extension LocationViewController: CLLocationManagerDelegate {
         if currentLocation == nil {
             // Zoom to user location
             if let userLocation = locations.last {
-                let viewRegion = MKCoordinateRegion(center: userLocation.coordinate, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
-                mapView.setRegion(viewRegion, animated: false)
+//                let viewRegion = MKCoordinateRegion(center: userLocation.coordinate, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
+                let span = MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)
+                let region = MKCoordinateRegion(center: userLocation.coordinate, span: span)
+                mapView.setRegion(region, animated: true)
             }
         }
     }
