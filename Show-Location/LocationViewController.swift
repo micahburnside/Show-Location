@@ -132,12 +132,14 @@ class LocationViewController: UIViewController, MKMapViewDelegate {
         if sender.isOn {
             print("Turned on")
             UIApplication.shared.registerForRemoteNotifications()
+            mapView.mapType = .hybrid
             
             
         }
         else{
             UIApplication.shared.unregisterForRemoteNotifications()
             print("Turned off")
+            mapView.mapType = .standard
         }
     }
     
