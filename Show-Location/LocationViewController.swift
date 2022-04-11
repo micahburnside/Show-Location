@@ -15,28 +15,55 @@ class LocationViewController: UIViewController, MKMapViewDelegate {
     var regionInMeters: Double = 250
     var currentLocation: CLLocation?
     private let locationManager = CLLocationManager()
-    
+
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupMapView()
         setupLocationManager()
         getDeviceLocation()
         centerViewOnUserLocation()
-
+        setupMapScale()
+        setupControls()
+        createSwitch()
     }
+    
     override func viewDidAppear(_ animated: Bool) {
 //        takeLocationSnapShot()
+//        addSubview(SwitchControl)
+        SwitchControl.translatesAutoresizingMaskIntoConstraints = false
+
+        SwitchControl.topAnchor.constraint(equalTo: view.topAnchor, constant: 0)
+        SwitchControl.topAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
+//        SwitchControl.topAnchor.constraint(equalTo: view.leadingAnchor, constant: 0)
+//        SwitchControl.topAnchor.constraint(equalTo: view.trailingAnchor, constant: 0)
+//            SwitchControl.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+//            SwitchControl.rightAnchor.constraint(equalTo: rightAnchor, constant: -12).isActive = true
     }
     
     func setupMapView() {
-        mapView.delegate = self
+        self.mapView.delegate = self
         self.view = mapView
         self.mapView.showsCompass = true
         self.mapView.mapType = .hybrid
+        self.mapView.isPitchEnabled = true
+    }
+    func setupMapScale() {
+        var scale = MKScaleView(mapView: mapView)
+        scale.scaleVisibility = .visible // always visible
+        scale.center = .init(x: 104, y: 64)
+        view.addSubview(scale)
+    }
+    func setupControls() {
+        let trackingButton = MKUserTrackingButton(mapView: mapView)
+        trackingButton.center = .init(x: 330, y: 715)
+//        let button = MKUserTrackingButton(mapView: mapView)
+//        zoom.mapView = .// always visible
+        view.addSubview(trackingButton)
     }
     func getDeviceLocation() {
-        mapView.delegate = self
-        mapView.showsUserLocation = true
+        self.mapView.delegate = self
+        self.mapView.showsUserLocation = true
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
     }
@@ -78,17 +105,42 @@ class LocationViewController: UIViewController, MKMapViewDelegate {
             self.takeLocationSnapShot()
         }
         locationsArray?.append(currentLocation!)
-        print(self.locationsArray)
-        print(self.locationsArray?.count )
         if self.locationsArray?.count ?? 10 == 10 {
             timer.invalidate()
             print("locationsArray.count has reached 10 locations: \(String(describing: locationsArray))")
         }
     }
-    
-    func takeSnaphotAtInterval() {
-
+    func createSwitch() {
+        mapView.addSubview(SwitchControl)
     }
+    lazy var SwitchControl: UISwitch = {
+        let SwitchControl = UISwitch()
+        SwitchControl.isOn = true
+        SwitchControl.isEnabled = true
+        SwitchControl.onTintColor = UIColor(red: 55/255, green: 120/255, blue: 250/255, alpha: 1)
+        SwitchControl.translatesAutoresizingMaskIntoConstraints = false
+        SwitchControl.addTarget(self, action: #selector(handleSwitchAction), for: .valueChanged)
+        SwitchControl.center = .init(x: 300, y: 300)
+
+        return SwitchControl
+
+    }()
+    
+    @objc func handleSwitchAction(sender: UISwitch){
+        
+        
+        if sender.isOn {
+            print("Turned on")
+            UIApplication.shared.registerForRemoteNotifications()
+            
+            
+        }
+        else{
+            UIApplication.shared.unregisterForRemoteNotifications()
+            print("Turned off")
+        }
+    }
+    
 }
 
 // MARK: - CLLocationManagerDelegate
@@ -105,20 +157,16 @@ extension LocationViewController: CLLocationManagerDelegate {
       manager.requestLocation()
     }
 
-    func locationManager(
-      _ manager: CLLocationManager,
-      didUpdateLocations locations: [CLLocation]
-    ) {
-//                self.mapView.setUserTrackingMode(.follow, animated:true)
-
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+//      self.mapView.setUserTrackingMode(.follow, animated:true)
+        self.locationManager.startUpdatingLocation()
         self.mapView.setUserTrackingMode(.followWithHeading, animated: true)
         defer { currentLocation = locations.last }
-
         if currentLocation == nil {
             // Zoom to user location
             if let userLocation = locations.last {
 //                let viewRegion = MKCoordinateRegion(center: userLocation.coordinate, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
-                let span = MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)
+                let span = MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
                 let region = MKCoordinateRegion(center: userLocation.coordinate, span: span)
                 
                 mapView.setRegion(region, animated: true)
